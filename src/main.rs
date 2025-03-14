@@ -1,4 +1,4 @@
-use std::io;
+use std::{io, process::exit};
 
 fn main() {
     println!("Please enter band colour:");
@@ -10,8 +10,22 @@ fn main() {
     let band2 = get_band_input();
     let band3 = get_band_input();
 
-    let r1 = ((band1 * 10) + band2) * 10_u32.pow(band3);
-    println!("{r1} Ohms");
+    let mut r1:usize = (band1 * 10) as usize;
+    r1 = r1 + band2 as usize;
+    
+
+    let Some(magnitude) = 10_u32.checked_pow(band3) else {
+        println!("error");
+        exit(1);   
+    };
+
+
+    r1 = r1.checked_mul(magnitude as usize).expect("overflow");
+
+    let resistor = Component::Resistor(r1);
+    println!("{:?}", resistor);
+
+
 }
 
 fn get_band_input() -> u32 {
@@ -35,4 +49,12 @@ fn get_band_input() -> u32 {
         _ => unreachable!("PANIC!"),
     };
     val
+}
+
+
+#[derive(Debug)]
+pub enum Component {
+    Diode,
+    Resistor(usize),
+    Capacitor(usize),
 }
